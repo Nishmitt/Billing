@@ -32,8 +32,11 @@ public class BillingDaoImpl implements IBillingDao{
 
 	@Override
 	public long insertPostPaidAccount(int customerID, PostpaidAccount account) {
-		// TODO Auto-generated method stub
-		return 0;
+		Customer customer=em.find(Customer.class,customerID);
+		account.setCustomer(customer);
+		em.persist(account);
+		customer.setPostpaidAccounts(account);
+		return account.getMobileNo();
 	}
 
 	@Override

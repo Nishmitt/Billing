@@ -32,10 +32,42 @@ public class BillingServicesImpl implements IBillingServices {
 	}
 
 	@Override
-	public long openPostpaidMobileAccount(int customerID, int planid, PostpaidAccount account)
+	public long openPostpaidMobileAccount(int customerID, int planId, PostpaidAccount account)
 			throws PlanDetailsNotFoundException, CustomerDetailsNotFoundException, BillingServicesDownException {
-		// TODO Auto-generated method stub
-		return 0;
+		Plan plan=new Plan();
+		plan.setPlanID(planId);
+		if(planId==199){
+			plan.setFreeInternetDataUsageUnits(250);
+			plan.setFreeLocalCalls(100);
+			plan.setFreeLocalSMS(50);
+			plan.setFreeStdCalls(400);
+			plan.setFreeStdSMS(50);
+			plan.setInternetDataUsageRate(2.5f);
+			plan.setLocalCallRate(0.2f);
+			plan.setLocalSMSRate(1);
+			plan.setMonthlyRental(199);
+			plan.setPlanCircle("Delhi");
+			plan.setPlanName("199 Dhamakedar Plan");
+			plan.setStdCallRate(6.5f);
+			plan.setStdSMSRate(1.5f);
+		}
+		else if(planId==299){
+			plan.setFreeInternetDataUsageUnits(500);
+			plan.setFreeLocalCalls(400);
+			plan.setFreeLocalSMS(100);
+			plan.setFreeStdCalls(800);
+			plan.setFreeStdSMS(100);
+			plan.setInternetDataUsageRate(2.5f);
+			plan.setLocalCallRate(0.2f);
+			plan.setLocalSMSRate(1);
+			plan.setMonthlyRental(299);
+			plan.setPlanCircle("Delhi");
+			plan.setPlanName("299 Silver Plan");
+			plan.setStdCallRate(6.5f);
+			plan.setStdSMSRate(1.5f);
+		}
+		account.setPlan(plan);
+		return dao.insertPostPaidAccount(customerID, account);
 	}
 
 	@Override
