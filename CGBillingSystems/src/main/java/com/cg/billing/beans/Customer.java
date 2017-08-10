@@ -13,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name="Customer1")
 public class Customer {
@@ -25,7 +27,8 @@ public class Customer {
 	@Embedded
 	private Address address;
 	
-	@OneToMany(mappedBy = "customer" , cascade= CascadeType.ALL,fetch=FetchType.EAGER)
+	@OneToMany(mappedBy = "customer" ,orphanRemoval=true,fetch=FetchType.EAGER)
+	@JsonIgnore
 	Map<Long,PostpaidAccount> postpaidAccounts=new HashMap<>();
 	
 	public Customer() {}
