@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cg.billing.beans.Bill;
 import com.cg.billing.beans.Customer;
 import com.cg.billing.beans.Plan;
 import com.cg.billing.beans.PostpaidAccount;
@@ -127,7 +127,7 @@ public class BillingController {
 	@RequestMapping(value = "/insertMonthlyBill", method = RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ResponseEntity<String> insertMonthlyBill(@ModelAttribute Bill bill)
 			throws BillingServicesDownException {
-		services.insertMonthlybill(customerID, mobileNo, bill);
+	
 		return new ResponseEntity<>("Monthly Bill details succesfully added", HttpStatus.OK);
 	}
 	
