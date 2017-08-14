@@ -142,7 +142,7 @@ public class BillingDaoImpl implements IBillingDao {
 		bill.setPostpaidaccount(postpaid);
 		postpaid.setBills(bill);
 		em.persist(bill);
-		return bill.getBillID();
+		return bill.getTotalBillAmount();
 	}
 	
 	@Override

@@ -36,7 +36,6 @@ public class BillingServicesImpl implements IBillingServices {
 			throws PlanDetailsNotFoundException, CustomerDetailsNotFoundException, BillingServicesDownException {
 
 		Plan plan = dao.findPlan(planId);
-		System.out.println(plan);
 		account.setPlan(plan);
 		return dao.insertPostPaidAccount(customerID, account);
 	}
@@ -49,22 +48,33 @@ public class BillingServicesImpl implements IBillingServices {
 
 		Plan plan = dao.getPlanDetails(customerID, mobileNo);
 		Bill bill = new Bill();
-		//bill needs month name
+
+		float amount = 0;
+
 		if (noOfLocalCalls > plan.getFreeLocalCalls())
-			bill.setLocalCallAmount((noOfLocalCalls - plan.getFreeLocalCalls() * plan.getLocalCallRate()));
+			bill.setLocalCallAmount((noOfLocalCalls - plan.getFreeLocalCalls()) * plan.getLocalCallRate());
+		amount = amount + bill.getLocalCallAmount();
 
 		if (noOfLocalSMS > plan.getFreeLocalSMS())
-			bill.setLocalCallAmount((noOfLocalSMS - plan.getFreeLocalSMS() * plan.getLocalSMSRate()));
+			bill.setLocalSMSAmount((noOfLocalSMS - plan.getFreeLocalSMS()) * plan.getLocalSMSRate());
+		amount = amount + bill.getLocalSMSAmount();
 
 		if (noOfStdSMS > plan.getFreeStdSMS())
-			bill.setLocalCallAmount((noOfStdSMS - plan.getFreeStdSMS() * plan.getStdSMSRate()));
+			bill.setStdSMSAmount((noOfStdSMS - plan.getFreeStdSMS()) * plan.getStdSMSRate());
+		amount = amount + bill.getStdSMSAmount();
 
 		if (noOfStdCalls > plan.getFreeStdCalls())
-			bill.setLocalCallAmount((noOfStdCalls - plan.getFreeStdCalls() * plan.getStdCallRate()));
+			bill.setStdCallAmount((noOfStdCalls - plan.getFreeStdCalls()) * plan.getStdCallRate());
+		amount = amount + bill.getStdCallAmount();
 
 		if (internetDataUsageUnits > plan.getFreeInternetDataUsageUnits())
-			bill.setLocalCallAmount(
-					(internetDataUsageUnits - plan.getFreeInternetDataUsageUnits() * plan.getInternetDataUsageRate()));
+			bill.setInternetDataUsageAmount(
+					(internetDataUsageUnits - plan.getFreeInternetDataUsageUnits()) * plan.getInternetDataUsageRate());
+		amount = amount + bill.getInternetDataUsageAmount();
+
+		bill.setServicesTax((float) (0.1 * amount));
+		bill.setVat((float) (0.06 * amount));
+		bill.setTotalBillAmount(amount + bill.getServicesTax() + bill.getVat());
 
 		return dao.insertMonthlybill(customerID, mobileNo, bill);
 	}
