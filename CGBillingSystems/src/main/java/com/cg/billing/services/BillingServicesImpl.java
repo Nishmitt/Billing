@@ -11,6 +11,7 @@ import com.cg.billing.beans.Customer;
 import com.cg.billing.beans.Plan;
 import com.cg.billing.beans.PostpaidAccount;
 import com.cg.billing.dao.BillingDaoImpl;
+import com.cg.billing.dao.IBillingDao;
 import com.cg.billing.exceptions.BillDetailsNotFoundException;
 import com.cg.billing.exceptions.BillingServicesDownException;
 import com.cg.billing.exceptions.CustomerDetailsNotFoundException;
@@ -24,6 +25,15 @@ public class BillingServicesImpl implements IBillingServices {
 
 	@Autowired
 	BillingDaoImpl dao;
+	IBillingDao billDao;
+
+	public BillingServicesImpl(IBillingDao dao2) {
+		billDao = dao2;
+	}
+	
+	public BillingServicesImpl() {
+		dao = new BillingDaoImpl();
+	}
 
 	@Override
 	public List<Plan> getPlanAllDetails() throws BillingServicesDownException {
@@ -74,7 +84,7 @@ public class BillingServicesImpl implements IBillingServices {
 
 		bill.setServicesTax((float) (0.1 * amount));
 		bill.setVat((float) (0.06 * amount));
-		bill.setTotalBillAmount(amount + bill.getServicesTax() + bill.getVat());
+		bill.setTotalBillAmount(plan.getPlanID() + amount + bill.getServicesTax() + bill.getVat());
 
 		return dao.insertMonthlybill(customerID, mobileNo, bill);
 	}
