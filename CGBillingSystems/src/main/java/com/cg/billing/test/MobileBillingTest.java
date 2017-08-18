@@ -53,6 +53,8 @@ public class MobileBillingTest {
 			Bill bill2= new Bill(02, 6, 0, 9, 0, 9887, "feb", 500, 5, 0, 56, 0, 50, 50, 34, null);
 			Bill bill3= new Bill(03, 7, 0, 9, 0, 9887, "march", 500, 5, 0, 56, 0, 50, 50, 34, null);
 			
+			Map<Integer, Bill> billMap = new HashMap<Integer, Bill>();
+			
 			planList = new ArrayList<Plan>();
 			Plan plan1 = new Plan(001, 200, 500, 300, 1000, 2000, 8000, 5, 9, 3, 5, 300, null, "jackpot");
 			Plan plan2 = new Plan(002, 230, 503, 330, 1300, 4000, 8050, 5, 9, 3, 5, 300, null, "superjackpot");
@@ -62,24 +64,21 @@ public class MobileBillingTest {
 			planList.add(plan1);
 			planList.add(plan2);
 			
-			PostpaidAccount ppa1 = new PostpaidAccount(98678986, plan1, bill1);
-			PostpaidAccount ppa2 = new PostpaidAccount(98788986, plan2, bill2);
+			PostpaidAccount ppa1 = new PostpaidAccount(98678986, plan1, billMap);
 			PostpaidAccount ppa3 = new PostpaidAccount(98678986, plan3, null);
 			
 			Address addr1 = new Address("lko", "up", 24566);
 			Address addr2 = new Address("agra", "up", 4738);
+			HashMap<Long, PostpaidAccount> postpaidMap = new HashMap<>();
 			
 			customerList= new ArrayList<>();
-			Customer customer1 = new Customer(1001, "ram", "gupta", "ram.cg.com", "25/07/9111", "4344", addr1, ppa1);
-			Customer customer2 = new Customer(1002, "ramu", "gupta", "ram.cg.com", "25/07/9111", "4344", addr1, ppa2);
-			Customer customer3 = new Customer( "shyam", "gupta", "ram.cg.com", "25/07/9111", "4344", null, null);
+			Customer customer1 = new Customer(1002, "ramu", "gupta", "ram.cg.com", "25/07/9111", "4344", addr1, postpaidMap);
+			Customer customerT = new Customer(1003 ,"shyam", "gupta", "ram.cg.com", "25/07/9111", "4344", null, null);
 			
 			customerList.add(customer1);
-			customerList.add(customer2);
 
-			Mockito.when(dao.insertCustomer(new Customer( "shyam", "gupta", "ram.cg.com", "25/07/9111", "4344", null, null))).thenReturn(1003);
+			Mockito.when(dao.insertCustomer(new Customer("shyam", "gupta", "ram.cg.com", "25/07/9111", "4344", null, null))).thenReturn(customerT);
 			Mockito.when(dao.insertPostPaidAccount(1001, ppa1)).thenReturn(98678986L);
-			Mockito.when(dao.insertPostPaidAccount(1234, ppa2)).thenReturn(0L);
 			Mockito.when(dao.insertPostPaidAccount(1001, ppa3)).thenReturn(0L);
 			Mockito.when(dao.getCustomerPostPaidAccount(1446, 98678986)).thenReturn(null);
 			Mockito.when(dao.getCustomerPostPaidAccount(1001, 97787986)).thenReturn(null);
@@ -109,16 +108,14 @@ public class MobileBillingTest {
 			Mockito.when(dao.deletePostPaidAccount(2345,9874444)).thenReturn(false);
 			Mockito.when(dao.deletePostPaidAccount(1001,9874444)).thenReturn(false);
 			Mockito.when(dao.deletePostPaidAccount(1001,98678986L)).thenReturn(true);
-			Mockito.when(dao.updatePostPaidAccount(2211,ppa2)).thenReturn(false);
-			Mockito.when(dao.updatePostPaidAccount(1001,ppa2)).thenReturn(false);
 			Mockito.when(dao.updatePostPaidAccount(1001,ppa3)).thenReturn(false);
 			Mockito.when(dao.updatePostPaidAccount(1001,ppa1)).thenReturn(true);
 		}
 		
 		@Test
 		public void testAcceptCustomerDetailsForValidData() throws BillingServicesDownException{
-			int expectedCustomer= 1003;
-			int actualCustomer = service.acceptCustomerDetails(new Customer( "shyam", "gupta", "ram.cg.com", "25/07/9111", "4344", null, null));
+			Customer expectedCustomer = new Customer(1003 ,"shyam", "gupta", "ram.cg.com", "25/07/9111", "4344", null, null);
+			Customer actualCustomer = service.acceptCustomerDetails(new Customer("shyam", "gupta", "ram.cg.com", "25/07/9111", "4344", null, null));
 			assertEquals(expectedCustomer,actualCustomer);
 			
 		}
@@ -234,8 +231,10 @@ public class MobileBillingTest {
 		public void testGetCustomerDetailsForValidData() throws CustomerDetailsNotFoundException, BillingServicesDownException{
 			Address addr1 = new Address("lko", "up", 24566);
 			Plan plan1 = new Plan(001, 200, 500, 300, 1000, 2000, 8000, 5, 9, 3, 5, 300, null, "jackpot");
-			Bill bill1= new Bill(01, 5, 0, 9, 0, 9887, "jan", 500, 5, 0, 56, 0, 50, 50, 34);
-			PostpaidAccount ppa1 = new PostpaidAccount(98678986, plan1, bill1);
+			Bill bill1= new Bill(01, 5, 0, 9, 0, 9887, "jan", 500, 5, 0, 56, 0, 50, 50, 34, null);
+			Map<Integer, Bill> billMap = new HashMap<Integer, Bill>();
+			billMap.put(1, bill1)
+			PostpaidAccount ppa1 = new PostpaidAccount(98678986, plan1, billMap);
 			Customer expectedResult= new Customer(1001, "ram", "gupta", "ram.cg.com", "25/07/9111", "4344", addr1, ppa1);
 			Customer actualResult= service.getCustomerDetails(1001);
 			assertEquals(expectedResult, actualResult);
@@ -255,20 +254,20 @@ public class MobileBillingTest {
 		
 		@Test(expected=CustomerDetailsNotFoundException.class)
 		public void testGenerateMonthlyMobileBillForInvalidCustomerId() throws CustomerDetailsNotFoundException, PostpaidAccountNotFoundException, InvalidBillMonthException, BillingServicesDownException, PlanDetailsNotFoundException{
-			service.generateMonthlyMobileBill(2345, 1234567, "May", 100, 12, 34, 78, 876);
+			service.generateMonthlyMobileBill(2345, 1234567, "May", 100, 12, 34, 78, 876, 1);
 		}
 		@Test(expected=PostpaidAccountNotFoundException.class)
 		public void testGenerateMonthlyMobileBillForInvalidMobileNo() throws CustomerDetailsNotFoundException, PostpaidAccountNotFoundException, InvalidBillMonthException, BillingServicesDownException, PlanDetailsNotFoundException{
-			service.generateMonthlyMobileBill(1001, 1234567, "May", 100, 12, 34, 78, 876);
+			service.generateMonthlyMobileBill(1001, 1234567, "May", 100, 12, 34, 78, 876, 1);
 		}
 		@Test(expected=InvalidBillMonthException.class)
 		public void testGenerateMonthlyMobileBillForInvalidBillMonth() throws CustomerDetailsNotFoundException, PostpaidAccountNotFoundException, InvalidBillMonthException, BillingServicesDownException, PlanDetailsNotFoundException{
-			service.generateMonthlyMobileBill(1001, 98678986, "fab", 100, 12, 34, 78, 876);
+			service.generateMonthlyMobileBill(1001, 9867982l, "fab", 100, 12, 34, 78, 876, 1);
 		}
 		@Test
 		public void testGenerateMonthlyMobileBillForValidData() throws CustomerDetailsNotFoundException, PostpaidAccountNotFoundException, InvalidBillMonthException, BillingServicesDownException, PlanDetailsNotFoundException{
 			Double expectedAmount= 34234d;
-			Double actualAmount=service.generateMonthlyMobileBill(2345, 98678986, "May", 100, 12, 34, 78, 876);
+			Double actualAmount=service.generateMonthlyMobileBill(2345, 98678986, "May", 100, 12, 34, 78, 876, 1);
 			assertEquals(expectedAmount, actualAmount);
 		}
 		@Test(expected=CustomerDetailsNotFoundException.class)
